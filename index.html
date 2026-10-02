@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADL Multi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a10;--card:#12121a;--card2:#191924;--bd:#262635;--tx:#e9e9f2;--mu:#8a8aa0;--ac:#6d4fd9;--ac2:#9b86f0;--err:#f87171;--live:#ef4444}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font:14px/1.4 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:var(--card2);border:1px solid var(--bd);border-radius:6px;padding:6px 11px}
+button:hover{border-color:#3a3a50;background:#222233}
+:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+button.pri:hover{background:#5d41c0}
+input[type=text],select{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:7px 10px;min-width:0}
+input[type=text]:focus{outline:none;border-color:var(--ac)}
+select{background:var(--card2);padding:5px 8px}
+.mu{color:var(--mu)}
+.sp{flex:1}
+header{flex:none;min-height:48px;display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--card);border-bottom:1px solid var(--bd);position:relative;z-index:40}
+.logo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;letter-spacing:-.02em;margin-right:8px;white-space:nowrap}
+.logo b{font-weight:400;color:var(--mu);letter-spacing:.02em;margin-left:-4px}
+form.add{display:flex;gap:6px;flex:1;max-width:420px}
+form.add input{flex:1}
+.pw{position:relative}
+.pop{position:absolute;top:calc(100% + 8px);right:0;width:290px;max-width:calc(100vw - 16px);max-height:70vh;overflow:auto;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;box-shadow:0 10px 30px #000a;z-index:60}
+.pop.l{right:auto;left:0}
+.pop h4{font-size:12px;color:var(--mu);font-weight:600;margin:10px 0 6px;display:flex;justify-content:space-between;align-items:center}
+.pop h4:first-child{margin-top:0}
+.row{display:flex;gap:8px;align-items:center;padding:4px 0;cursor:pointer}
+.row input{accent-color:var(--ac)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg button[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:#fff}
+.chip{display:inline-flex;margin:0 6px 6px 0;border:1px solid var(--bd);border-radius:6px;background:var(--card2)}
+.chip button{background:none;border:0;padding:4px 9px}
+.chip button+button{padding:4px 7px 4px 0;color:var(--mu)}
+.lnk{background:none;border:0;padding:0;color:var(--ac2);font-size:12px}
+#app{flex:1;display:flex;min-height:0}
+.stage{flex:1;min-width:0;position:relative}
+.grid{display:grid;gap:8px;padding:8px;height:100%;grid-template-columns:var(--tc);grid-template-rows:var(--tr)}
+.grid.stack{overflow:auto;align-content:start;grid-auto-rows:auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;box-shadow:0 2px 8px #0006}
+.card.max{position:absolute;inset:0;z-index:20;border-radius:0}
+.card.over{outline:2px dashed var(--ac)}
+.card.dragging{opacity:.5}
+.bar{display:flex;align-items:center;gap:2px;height:28px;flex:none;padding:0 4px 0 10px;background:var(--card);border-bottom:1px solid var(--bd);cursor:grab}
+.ctl{display:flex;opacity:0;transition:opacity .15s}
+.card:hover .ctl,.card:focus-within .ctl,.card.max .ctl{opacity:1}
+@media(hover:none){.ctl{opacity:1}}
+.bar button{display:grid;place-items:center;width:26px;height:22px;padding:0;background:none;border-color:transparent;color:var(--mu)}
+.bar button:hover{color:var(--tx);background:#262638}
+.bar button[aria-pressed=true],.bar .on{color:var(--ac2)}
+.bar .on svg{fill:currentColor}
+.nm{font-size:13px;font-weight:600;color:var(--mu);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card:hover .nm,.card.sel .nm{color:var(--tx)}
+.card.sel .bar{box-shadow:inset 3px 0 0 var(--ac)}
+.body{flex:1;display:flex;min-height:0;background:#000}
+.pl{flex:1;position:relative;min-width:0}
+iframe{border:0;width:100%;height:100%;display:block;background:#000}
+.pl iframe{position:absolute;inset:0}
+.chat{width:30%;min-width:240px;max-width:380px;border-left:1px solid var(--bd);background:var(--card)}
+.err{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--card)}
+.drag iframe{pointer-events:none}
+.exit{display:none}
+.card:fullscreen{width:100%;height:100%;border:0;border-radius:0}
+.card:fullscreen .bar{display:none}
+.card:fullscreen .exit{display:block;position:absolute;top:10px;right:10px;z-index:5;opacity:.85}
+.stack .card{height:auto}
+.stack .body{flex-direction:column}
+.stack .pl{flex:none;aspect-ratio:16/9}
+.stack .chat{width:auto;max-width:none;height:300px;border-left:0}
+.stack .card.max{height:auto}
+.empty{position:absolute;inset:0;padding:8px;display:flex}
+#eslot{flex:1;background:transparent;border:1px dashed var(--bd);border-radius:8px;color:var(--mu);font-size:34px;font-weight:300}
+#elive{margin:auto;display:flex;flex-wrap:wrap;gap:16px 20px;justify-content:center;max-width:720px;padding:16px}
+.eav{display:flex;flex-direction:column;align-items:center;gap:4px;width:88px;padding:8px 4px;background:none;border-color:transparent;border-radius:10px}
+.eav:hover{background:var(--card2);border-color:var(--bd)}
+.eav b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.eav .v,.vw{font-size:12px;font-variant-numeric:tabular-nums}
+.av.big{width:56px;height:56px;font-size:20px;box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--live)}
+.card.new{animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:scale(.98)}}
+@media(prefers-reduced-motion:reduce){.card.new{animation:none}}
+#eslot:hover{border-color:var(--ac);color:var(--ac2)}
+#gchat{width:340px;flex:none;display:flex;flex-direction:column;background:var(--card);border-left:1px solid var(--bd)}
+.gh{display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid var(--bd)}
+#gchat iframe{flex:1;min-height:0}
+#toast{position:fixed;top:56px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--err);color:var(--tx);padding:8px 14px;border-radius:8px;z-index:100;box-shadow:0 6px 20px #000a}
+body.clean header,body.clean .bar{display:none}
+body.clean .grid{gap:4px;padding:4px}
+#cleanx{position:fixed;top:8px;right:8px;z-index:50;opacity:.3;font-size:12px;padding:4px 9px}
+#cleanx:hover,#cleanx:focus-visible{opacity:1}
+#bBtn{white-space:nowrap}
+.ov{position:fixed;inset:0;background:#000a;z-index:90;display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg{background:var(--card);border:1px solid var(--bd);border-radius:12px;width:100%;max-width:820px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px #000}
+.dh{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--bd)}
+.dh h2{font-size:16px;font-weight:650}
+#bBody{overflow:auto;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;align-content:start}
+.pad{padding:12px;grid-column:1/-1}
+.lc{display:flex;gap:10px;align-items:center;text-align:left;padding:10px;border-radius:8px;width:100%}
+.lc:hover:not(:disabled){border-color:var(--ac)}
+.lc:disabled{opacity:.5;cursor:default}
+.av{position:relative;flex:none;width:44px;height:44px;border-radius:50%;background:var(--bd);display:grid;place-items:center;overflow:hidden;font-weight:600}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.li{min-width:0;flex:1;display:flex;flex-direction:column}
+.li b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl{color:var(--mu);font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vw{flex:none;font-size:12px}
+.vw i,.eav i{color:var(--live);font-style:normal}
+@media(max-width:899px){#app{flex-direction:column}#gchat{width:auto;height:42%;border-left:0;border-top:1px solid var(--bd)}}
+@media(max-width:699px){.logo{display:none}.pw{position:static}.pop,.pop.l{left:8px;right:8px;width:auto}header{padding:6px 8px;gap:4px;flex-wrap:wrap}header button{padding:6px 8px;font-size:13px}form.add{flex:1 1 100%;max-width:none}}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="8" height="8" rx="2" fill="var(--ac)"/><g fill="none" stroke="currentColor" stroke-width="1.5"><rect x="11.5" y="1.5" width="7" height="7" rx="1.8"/><rect x="1.5" y="11.5" width="7" height="7" rx="1.8"/><rect x="11.5" y="11.5" width="7" height="7" rx="1.8"/></g></svg>ADL<b>MULTI</b></span>
+  <form class="add" autocomplete="off"><input id="hin" type="text" placeholder="Enter Kick username… (Ctrl+K)" aria-label="Kick username" maxlength="80"><button class="pri">Add Stream</button></form>
+  <button id="bBtn">Browse Streamers</button>
+  <span class="pw"><button data-pop="pRec" aria-haspopup="true">Recent</button><div class="pop l" id="pRec" hidden></div></span>
+  <span class="sp"></span>
+  <span class="pw"><button data-pop="pLib" aria-haspopup="true">Favorites</button><div class="pop" id="pLib" hidden></div></span>
+  <span class="pw"><button data-pop="pLay" aria-haspopup="true">Layout</button>
+    <div class="pop" id="pLay" hidden>
+      <h4>Layout</h4>
+      <div class="seg"><button data-l="auto">Auto</button><button data-l="2x2">2 × 2</button><button data-l="3x3">3 × 3</button><button data-l="focus">Focus</button></div>
+      <p class="mu" style="margin-top:8px;font-size:12px">Click a stream's name to select it. In Focus, the selected stream is the large one.</p>
+      <h4>Chat</h4>
+      <label class="row"><input type="checkbox" id="gcb"> Global chat panel</label>
+      <h4>View</h4>
+      <button id="cleanb" style="width:100%">Clean mode (H)</button>
+    </div></span>
+  <span class="pw"><button data-pop="pSet" aria-haspopup="true">Settings</button><div class="pop" id="pSet" hidden></div></span>
+</header>
+<div id="app">
+  <div class="stage" id="stage">
+    <div class="grid" id="grid" hidden></div>
+    <section class="empty" id="empty"><div id="elive"></div><button id="eslot" aria-label="Add a stream" title="Add a stream">+</button></section>
+  </div>
+  <aside id="gchat" hidden><div class="gh"><label for="gsel">Chat</label><select id="gsel"></select></div></aside>
+</div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<div id="browse" class="ov" hidden><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="bT"><div class="dh"><h2 id="bT">Live now</h2><span class="mu" id="bSub"></span><span class="sp"></span><button id="bRef">Refresh</button><button id="bX" aria-label="Close">✕</button></div><div id="bBody"></div></div></div>
+<button id="cleanx" hidden title="Show controls (H)">Show controls</button>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const KEY='kickmulti:v1',MAX=9;
+const OPT=[['volume','Volume controls'],['quality','Quality controls'],['pip','Picture-in-Picture'],['playpause','Play/Pause controls']];
+const LOCK=['fullscreen','reload','opentokick']; // always hidden inside the player, not user-configurable
+const clean=v=>(v||'').trim().toLowerCase().replace(/^(https?:\/\/)?(www\.)?kick\.com\//,'').split(/[\/?#\s]/)[0];
+const valid=v=>/^[a-z0-9][a-z0-9_-]{1,24}$/.test(v);
+// Query string is built with & between options: ?volume=false&quality=false
+const pUrl=u=>{const q=[...OPT.map(([k])=>k).filter(k=>!S.settings[k]),...LOCK].map(k=>k+'=false').join('&');return 'https://player.kick.cx/'+encodeURIComponent(u)+(q?'?'+q:'')};
+const cUrl=u=>'https://chat.kick.cx/embed/'+encodeURIComponent(u)+(S.settings.chatInteractive?'':'?readonly=true');
+
+function load(){
+  let o={};try{o=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
+  const d={streams:[],favorites:[],recent:[],layout:'auto',focus:null,chats:[],gchat:{on:false,who:null}};
+  const s={...d,...o,gchat:{...d.gchat,...o.gchat},settings:{...Object.fromEntries(OPT.map(([k])=>[k,true])),chatInteractive:false,...o.settings}};
+  ['streams','favorites','recent','chats'].forEach(k=>s[k]=[...new Set((Array.isArray(s[k])?s[k]:[]).filter(valid))]);
+  s.streams=s.streams.slice(0,MAX);
+  if(!['auto','2x2','3x3','focus'].includes(s.layout))s.layout='auto';
+  return s;
+}
+let S=load();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const g=$('#grid'),cards=new Map();let maxU=null,dragU=null,tt;
+
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+
+function add(raw){
+  const u=clean(raw);
+  if(!valid(u))return toast('Please enter a valid Kick username.');
+  if(S.streams.includes(u))return toast('Streamer already added.');
+  if(S.streams.length>=MAX)return toast(`You can watch up to ${MAX} streams at once.`);
+  S.streams.push(u);S.recent=[u,...S.recent.filter(x=>x!==u)].slice(0,12);save();
+  mount(u,1);refresh();return true;
+}
+
+function mount(u,fresh){
+  const c=document.createElement('div');c.className='card'+(fresh?' new':'');c.dataset.u=u;
+  c.innerHTML=`<div class="bar" draggable="true"><span class="nm" tabindex="0" role="button" title="Select this stream">${u}</span><span class="sp"></span>
+<span class="ctl"><button data-a="fav" title="Favorite" aria-label="Favorite ${u}">${ic('heart')}</button>
+<button data-a="chat" aria-pressed="false" title="Toggle chat" aria-label="Toggle chat for ${u}">${ic('chat')}</button>
+<button data-a="reload" title="Refresh" aria-label="Refresh ${u}">${ic('reload')}</button>
+<button data-a="max" title="Maximize" aria-label="Maximize ${u}">${ic('max')}</button>
+<button data-a="fs" title="Fullscreen" aria-label="Fullscreen ${u}">${ic('fs')}</button>
+<button data-a="rm" title="Remove" aria-label="Remove ${u}">${ic('x')}</button></span></div>
+<div class="body"><div class="pl"><div class="err" hidden><p>Unable to load stream</p><div><button data-a="reload">Refresh</button> <button data-a="rm">Remove</button></div></div></div><div class="chat" hidden></div></div>
+<button class="exit" data-a="fs">Exit fullscreen</button>`;
+  cards.set(u,c);g.append(c);queue(c);
+  if(S.chats.includes(u))toggleChat(c,true);
+}
+
+const IC={heart:'<path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/>',chat:'<path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>',reload:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',max:'<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',min:'<path d="M20 10h-6V4M4 14h6v6M14 10l7-7M10 14l-7 7"/>',fs:'<path d="M8 4H5a1 1 0 0 0-1 1v3M16 4h3a1 1 0 0 1 1 1v3M8 20H5a1 1 0 0 1-1-1v-3M16 20h3a1 1 0 0 0 1-1v-3"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>'};
+const ic=n=>`<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const fsCard=()=>{const e=document.fullscreenElement;return e&&e.closest?e.closest('.card'):null};
+function loadPlayer(c){
+  const fc=fsCard();if(fc&&fc!==c){c._off=true;return} // while one stream is fullscreen, the others stay unloaded
+  const pl=$('.pl',c),er=$('.err',c);let f=$('iframe',pl);
+  if(!f){f=document.createElement('iframe');f.loading='lazy';f.allowFullscreen=true;f.allow='autoplay; fullscreen; picture-in-picture';f.title=c.dataset.u+' player';pl.prepend(f)}
+  c._off=false;er.hidden=true;clearTimeout(c._t);f.style.visibility='hidden';
+  f.onload=()=>{clearTimeout(c._t);f.style.visibility=''};
+  c._t=setTimeout(()=>{if(c.getBoundingClientRect().top<innerHeight)er.hidden=false},25000);
+  f.src=pUrl(c.dataset.u);
+}
+/* Staggered loading: one player every 400ms so nine streams don't freeze the page */
+const q=[];let qt=0;
+function queue(c){if(!q.includes(c))q.push(c);if(!qt)pump()}
+function pump(){const c=q.shift();if(!c){qt=0;return}if(c.isConnected)loadPlayer(c);qt=setTimeout(pump,400)}
+
+function toggleChat(c,on){
+  const u=c.dataset.u,p=$('.chat',c),b=$('[data-a=chat]',c);
+  p.hidden=!on;b.setAttribute('aria-pressed',on);
+  if(on&&!p.firstChild){const f=document.createElement('iframe');f.title=u+' chat';f.src=cUrl(u);p.append(f)}
+  if(!on)p.replaceChildren();
+  S.chats=S.chats.filter(x=>x!==u);if(on)S.chats.push(u);save();
+}
+
+function setMax(u){
+  maxU=u;
+  cards.forEach((c,k)=>{const m=k===u,b=$('[data-a=max]',c);c.classList.toggle('max',m);b.innerHTML=ic(m?'min':'max');b.title=m?'Exit maximize':'Maximize';b.setAttribute('aria-label',(m?'Exit maximize ':'Maximize ')+k)});
+}
+
+function removeStream(u){
+  const c=cards.get(u);if(!c)return;clearTimeout(c._t);c.remove();cards.delete(u);
+  S.streams=S.streams.filter(x=>x!==u);S.chats=S.chats.filter(x=>x!==u);
+  if(S.focus===u)S.focus=null;if(maxU===u)maxU=null;
+  save();refresh();
+}
+
+g.addEventListener('click',e=>{
+  const c=e.target.closest('.card');if(!c)return;
+  const u=c.dataset.u,b=e.target.closest('[data-a]');
+  if(!b){if(e.target.closest('.nm')){S.focus=u;if(S.gchat.on)S.gchat.who=u;save();layout();marks();gchat()}return}
+  switch(b.dataset.a){
+    case 'fav':S.favorites=S.favorites.includes(u)?S.favorites.filter(x=>x!==u):[u,...S.favorites];save();marks();break;
+    case 'chat':toggleChat(c,$('.chat',c).hidden);break;
+    case 'reload':{const f=$('.pl iframe',c);if(f){f.src='about:blank';setTimeout(()=>loadPlayer(c),40)}break}
+    case 'max':setMax(maxU===u?null:u);break;
+    case 'fs':document.fullscreenElement?document.exitFullscreen():c.requestFullscreen&&c.requestFullscreen().catch(()=>{});break;
+    case 'rm':removeStream(u);break;
+  }
+});
+g.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('nm'))e.target.click()});
+
+/* Drag & drop: only the title bar is draggable; iframes ignore the pointer while dragging.
+   Cards are positioned by grid placement (not moved in the DOM), so players never reload. */
+g.addEventListener('dragstart',e=>{
+  if(!e.target.matches||!e.target.matches('.bar'))return;
+  const c=e.target.closest('.card');dragU=c.dataset.u;
+  e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragU);
+  try{e.dataTransfer.setDragImage(c,20,10)}catch(_){}
+  setTimeout(()=>{g.classList.add('drag');c.classList.add('dragging')},0);
+});
+g.addEventListener('dragover',e=>{
+  if(!dragU)return;e.preventDefault();
+  $$('.over',g).forEach(x=>x.classList.remove('over'));
+  const c=e.target.closest('.card');if(c&&c.dataset.u!==dragU)c.classList.add('over');
+});
+g.addEventListener('drop',e=>{
+  e.preventDefault();const c=e.target.closest('.card');
+  if(c&&dragU&&c.dataset.u!==dragU){const a=S.streams,from=a.indexOf(dragU),to=a.indexOf(c.dataset.u);a.splice(to,0,a.splice(from,1)[0]);save();layout()}
+});
+g.addEventListener('dragend',()=>{dragU=null;g.classList.remove('drag');$$('.dragging,.over',g).forEach(x=>x.classList.remove('dragging','over'))});
+
+/* Layout */
+function layout(){
+  const n=S.streams.length;g.hidden=!n;$('#empty').hidden=!!n;if(!n)return;
+  const stack=innerWidth<700,L=S.layout,T='minmax(0,1fr)',set=(k,v)=>g.style.setProperty(k,v);
+  g.classList.toggle('stack',stack);
+  const P=isClean()?8:16,bh=isClean()?0:30,W=g.clientWidth-P,H=g.clientHeight-P,st=u=>cards.get(u).style;
+  if(stack){set('--tc',`repeat(2,${T})`);set('--tr','none');S.streams.forEach((u,i)=>{st(u).gridColumn='span 2';st(u).gridRow=i+1});return}
+  if(L==='focus'&&n>1){
+    const f=S.streams.includes(S.focus)?S.focus:S.streams[0];let k=1;
+    set('--tc',`${T} minmax(0,24%)`);set('--tr',`repeat(${n-1},${T})`);
+    S.streams.forEach(u=>{if(u===f){st(u).gridColumn=1;st(u).gridRow=`1 / span ${n-1}`}else{st(u).gridColumn=2;st(u).gridRow=k++}});
+    return;
+  }
+  let cols=1;
+  if(L==='2x2')cols=Math.min(2,n);
+  else if(L==='3x3')cols=Math.min(3,n);
+  else{ // Auto: pick the column count that gives the largest 16:9 player area
+    let best=0;
+    for(let c=1;c<=Math.min(n,4);c++){const w=W/c,h=H/Math.ceil(n/c)-bh,s=Math.min(w,h*16/9);if(s>0&&s*s>best){best=s*s;cols=c}}
+  }
+  const rows=Math.ceil(n/cols),last=n-(rows-1)*cols;
+  set('--tc',`repeat(${cols*2},${T})`);set('--tr',`repeat(${rows},${T})`);
+  S.streams.forEach((u,i)=>{ // two tracks per card lets an incomplete last row be centered
+    const r=Math.floor(i/cols);let s=(i%cols)*2+1;if(r===rows-1&&last<cols)s+=cols-last;
+    st(u).gridColumn=`${s} / span 2`;st(u).gridRow=r+1;
+  });
+}
+
+function marks(){
+  const n=S.streams.length;
+  cards.forEach((c,u)=>{const f=S.favorites.includes(u),b=$('[data-a=fav]',c);c.classList.toggle('sel',n>1&&S.focus===u);b.classList.toggle('on',f);b.setAttribute('aria-pressed',f)});
+}
+
+function gchat(){
+  const a=$('#gchat'),on=S.gchat.on&&S.streams.length>0;let f=$('iframe',a);
+  a.hidden=!on;if(!on){f&&f.remove();return}
+  if(!S.streams.includes(S.gchat.who))S.gchat.who=S.streams[0];
+  $('#gsel').innerHTML=S.streams.map(u=>`<option${u===S.gchat.who?' selected':''}>${u}</option>`).join('');
+  if(!f){f=document.createElement('iframe');f.title='Chat';a.append(f)}
+  const url=cUrl(S.gchat.who);if(f.getAttribute('src')!==url)f.src=url;
+}
+$('#gsel').onchange=e=>{S.gchat.who=e.target.value;save();gchat()};
+
+const chip=(u,f)=>`<span class="chip"><button data-add="${u}">${u}</button>${f?`<button data-unfav="${u}" aria-label="Remove ${u} from favorites">✕</button>`:''}</span>`;
+function lib(){
+  $('#pLib').innerHTML=`<h4>Favorites</h4>${S.favorites.length?S.favorites.map(u=>chip(u,1)).join(''):'<p class="mu">Use ♡ on a stream to save it here.</p>'}`;
+}
+function rec(){
+  $('#pRec').innerHTML=`<h4>Recent ${S.recent.length?'<button class="lnk" data-clr>Clear</button>':''}</h4>${S.recent.length?S.recent.map(u=>chip(u)).join(''):'<p class="mu">No recent streamers yet.</p>'}`;
+}
+function sync(){
+  $$('#pLay [data-l]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===S.layout));
+  $('#gcb').checked=S.gchat.on;
+}
+function refresh(){layout();gchat();marks();sync();paintEmpty();if(!S.streams.length&&Date.now()-live.t>120000)scan()}
+
+/* Settings: changing a player option reloads only the players whose URL changed */
+$('#pSet').innerHTML='<h4>Player</h4>'+OPT.map(([k,l])=>`<label class="row"><input type="checkbox" data-k="${k}"> ${l}</label>`).join('')+'<h4>Chat</h4><label class="row"><input type="checkbox" data-k="chatInteractive"> Interactive chat (allow sending)</label>';
+$$('#pSet [data-k]').forEach(i=>{
+  i.checked=!!S.settings[i.dataset.k];
+  i.onchange=()=>{
+    S.settings[i.dataset.k]=i.checked;save();
+    cards.forEach((c,u)=>{
+      const f=$('.pl iframe',c);if(f&&f.getAttribute('src')!==pUrl(u))queue(c);
+      const ch=$('.chat iframe',c);if(ch&&ch.getAttribute('src')!==cUrl(u))ch.src=cUrl(u);
+    });
+    gchat();
+  };
+});
+$('#pLay').addEventListener('click',e=>{const b=e.target.closest('[data-l]');if(b){S.layout=b.dataset.l;save();layout();sync()}});
+$('#gcb').onchange=e=>{S.gchat.on=e.target.checked;save();gchat()};
+
+/* Popovers + library / chip clicks */
+const hidePops=()=>$$('.pop').forEach(p=>p.hidden=true);
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-pop]');
+  $$('.pop').forEach(p=>{if(t&&p.id===t.dataset.pop&&p.hidden){p.hidden=false;if(p.id==='pLib')lib();if(p.id==='pRec')rec()}else if(!p.contains(e.target))p.hidden=true});
+  const a=e.target.closest('[data-add]');if(a){add(a.dataset.add);hidePops();if(!$('#browse').hidden)paint()}
+  const uf=e.target.closest('[data-unfav]');if(uf){S.favorites=S.favorites.filter(x=>x!==uf.dataset.unfav);save();marks();lib()}
+  if(e.target.closest('[data-clr]')){S.recent=[];save();rec()}
+});
+$$('form.add').forEach(f=>f.onsubmit=e=>{e.preventDefault();const i=$('input',f);if(add(i.value))i.value=''});
+
+/* Keyboard: Ctrl/Cmd+K focuses the add box; Esc exits maximize (fullscreen is exited by the browser) */
+document.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if((e.ctrlKey||e.metaKey)&&k==='k'){e.preventDefault();if(isClean())setClean(false);$('#hin').focus()}
+  else if(k==='escape'){if(!$('#browse').hidden)setBrowse(false);hidePops();if(maxU&&!document.fullscreenElement)setMax(null);else if(isClean())setClean(false)}
+  else if(k==='h'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)&&S.streams.length&&$('#browse').hidden)setClean(!isClean());
+});
+/* Browse Streamers: checks each name against Kick's channel endpoint and lists only the live ones */
+const LIVE='iceposeidon,nickwhite,stellooo,drago,mando,dtanmanb,mexicanandy,blame,ozemi,zuesirl,chickenandy,m1kedanger,jollyirl,shoovy,mydogjason,wvagabond,acx6,kimmee,alexis,feef,ryanheinz,soultravels,jandro,nicklee,floridaboy,xenathewitch,tazo,greatwhitemike,billybetz,amray,glink,garydavid'.split(',');
+let live={t:0,items:[],failed:0,busy:false};
+const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function check(u){
+  const r=await fetch('https://kick.com/api/v2/channels/'+u,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(10000)});
+  if(!r.ok)throw new Error(r.status);
+  const d=await r.json(),l=d.livestream,us=d.user||{};
+  if(!l||l.is_live===false)return null;
+  return{u,name:us.username||u,pic:us.profile_pic||us.profilepic||'',title:l.session_title||'',n:l.viewer_count||0};
+}
+async function scan(){
+  if(live.busy)return;live.busy=true;paint();
+  const items=[];let failed=0,i=0;
+  await Promise.all(Array.from({length:6},async()=>{while(i<LIVE.length){const u=LIVE[i++];try{const x=await check(u);if(x)items.push(x)}catch(e){failed++}}}));
+  live={t:Date.now(),items:items.sort((a,b)=>b.n-a.n),failed,busy:false};paint();
+}
+const av=(x,c='')=>{const img=/^https:\/\//.test(x.pic)?`<img src="${esc(x.pic)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:'';return `<span class="av${c}">${esc(x.name[0]||'?').toUpperCase()}${img}</span>`};
+function card(x){const added=S.streams.includes(x.u);return `<button class="lc" data-add="${esc(x.u)}"${added?' disabled':''}>${av(x)}<span class="li"><b>${esc(x.name)}</b><span class="tl">${esc(x.title)}</span></span><span class="vw">${added?'Added':`<i>●</i> ${x.n.toLocaleString()}`}</span></button>`}
+function paintEmpty(){
+  const items=live.items.filter(x=>!S.streams.includes(x.u)).slice(0,12);
+  $('#elive').innerHTML=items.map(x=>`<button class="eav" data-add="${esc(x.u)}" title="${esc(x.title)}">${av(x,' big')}<b>${esc(x.name)}</b><span class="v"><i>●</i> ${x.n.toLocaleString()}</span></button>`).join('');
+  $('#eslot').hidden=items.length>0;
+}
+function paint(){
+  paintEmpty();const L=live,b=$('#bBody'),r=$('#bRef');r.disabled=L.busy;r.textContent=L.busy?'Checking…':'Refresh';
+  $('#bSub').textContent=L.t?`${L.items.length} live · updated ${new Date(L.t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}${L.failed?` · ${L.failed} couldn’t be checked`:''}`:'';
+  if(!L.t){b.innerHTML='<p class="mu pad">Checking who is live…</p>';return}
+  if(L.failed===LIVE.length){b.innerHTML='<p class="pad">Couldn’t load live status from Kick. Press Refresh to try again.</p>';return}
+  b.innerHTML=L.items.length?L.items.map(card).join(''):'<p class="mu pad">No one on the list is live right now.</p>';
+}
+function setBrowse(on){$('#browse').hidden=!on;if(on){paint();if(Date.now()-live.t>60000)scan()}}
+$('#bBtn').onclick=()=>setBrowse(true);$('#bX').onclick=()=>setBrowse(false);$('#bRef').onclick=scan;
+$('#browse').addEventListener('click',e=>{if(e.target.id==='browse')setBrowse(false)});
+/* Clean mode: hides the top bar and title bars (H to toggle, Esc to exit) */
+function isClean(){return document.body.classList.contains('clean')}
+function setClean(on){document.body.classList.toggle('clean',on);$('#cleanx').hidden=!on;layout()}
+$('#cleanb').onclick=()=>{hidePops();if(S.streams.length)setClean(true)};
+$('#cleanx').onclick=()=>setClean(false);
+/* Fullscreen: unload every other player while one stream is fullscreen, restore them (staggered) on exit */
+document.addEventListener('fullscreenchange',()=>{
+  const fc=fsCard();
+  cards.forEach(c=>{
+    if(fc&&c!==fc){clearTimeout(c._t);const f=$('.pl iframe',c);if(f){f.onload=null;f.style.visibility='hidden';f.src='about:blank'}$('.err',c).hidden=true;c._off=true}
+    else if(!fc&&c._off)queue(c);
+  });
+});
+
+
+$('#eslot').onclick=()=>$('#hin').focus();
+new ResizeObserver(layout).observe($('#stage'));
+S.streams.forEach(mount);refresh();
+</script>
+</body>
+</html>
